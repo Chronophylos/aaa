@@ -17,30 +17,39 @@ var recentlyFired = false;
 
 function HandleStatChange () {
   if (recentlyFired) return;
-  recentlyFired = true;
+  else recentlyFired = true;
+
   var entity = Players.GetLocalPlayerPortraitUnit();
   GameEvents.SendCustomGameEventToServer('statprovider_entities_request', {
     entity: entity
   });
   $.Schedule(0.1, function () {
-    UpdateRegenDisplays(entity); recentlyFired = false;
+    UpdateRegenDisplays(entity);
+    recentlyFired = false;
   });
 }
 
 function UpdateRegenDisplays (entity) {
+  if (entity === null) {
+    $.Msg('[Error] Variable \'entity\' is null');
+  }
   var stats = CustomNetTables.GetTableValue('entity_stats', String(entity));
 
   HealthRegenLabel.text = FormatRegen(stats['HealthRegen']);
-  ManaRegenLabel.text = FormatRegen(stats['ManaRegen']); // TODO Values are wrong
+  ManaRegenLabel.text = FormatRegen(stats['ManaRegen']);
 }
 
 function FormatRegen (number) {
+  error('Variable \'number\' is not a number');
   if (number > 0) {
     number = '+' + number.toFixed(3);
-  } else if (number > 0) {
+  } else if (number < 0) {
     number = '-' + number.toFixed(3);
-  } else {
+  } else if (number === 0) { // this may occur
     number = '±0.00';
+  } else { // this should never occur (apparently it did)
+    error('Variable \'number\' is not a number');
+    number = 'error';
   }
 
   return number;

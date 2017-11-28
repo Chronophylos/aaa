@@ -38,6 +38,11 @@ function onGoldChange (table, data) {
 
 function UpdateGoldHud (gold) {
   var GoldLabel = FindDotaHudElement('ShopButton').FindChildTraverse('GoldLabel');
+  if (!gold instanceof number) {
+    error('gold is not a number');
+    GoldLabel.text = 'error';
+    return;
+  }
 
   if (useFormatting === 'full') {
     GoldLabel.text = FormatGold(gold);
@@ -52,9 +57,14 @@ function UpdateGoldTooltip (gold) {
   // HACK this spews error when attempting to change the tooltip if it is not visible
   try {
     var tooltipLabels = FindDotaHudElement('DOTAHUDGoldTooltip').FindChildTraverse('Contents');
-
     var label = tooltipLabels.GetChild(0);
-    label.text = label.text.replace(/: [0-9]+/, ': ' + gold);
+
+    if (!gold instanceof number) {
+      error('gold is not a number');
+      label.text = label.text.replace(/: [0-9]+/, ': error');
+    } else {
+      label.text = label.text.replace(/: [0-9]+/, ': ' + gold);
+    }
 
     label = tooltipLabels.GetChild(1);
     label.style.visibility = 'collapse';
